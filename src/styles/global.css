@@ -1,0 +1,135 @@
+:root {
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+
+  --sidebar-width: 260px;
+  --right-panel-width: 280px;
+  --header-height: 44px;
+  --radius: 6px;
+
+  --transition: 150ms ease;
+}
+
+[data-theme='dark'] {
+  --bg-app: #1e1e1e;
+  --bg-sidebar: #252526;
+  --bg-panel: #2d2d2d;
+  --bg-hover: #37373d;
+  --bg-active: #094771;
+  --bg-input: #3c3c3c;
+  --bg-code: #1a1a1a;
+
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+  --text-muted: #6e6e6e;
+  --text-accent: #4fc1ff;
+  --text-link: #3794ff;
+
+  --border: #3c3c3c;
+  --border-subtle: #333333;
+
+  --accent: #007acc;
+  --accent-hover: #1a8ad4;
+
+  --graph-node-model: #e06c75;
+  --graph-node-module: #61afef;
+  --graph-node-dataset: #98c379;
+  --graph-node-concept: #c678dd;
+  --graph-node-experiment: #d19a66;
+  --graph-node-paper: #56b6c2;
+  --graph-edge: #555555;
+}
+
+[data-theme='light'] {
+  --bg-app: #ffffff;
+  --bg-sidebar: #f3f3f3;
+  --bg-panel: #fafafa;
+  --bg-hover: #e8e8e8;
+  --bg-active: #cce5ff;
+  --bg-input: #ffffff;
+  --bg-code: #f5f5f5;
+
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-accent: #0066b8;
+  --text-link: #0066cc;
+
+  --border: #e0e0e0;
+  --border-subtle: #eeeeee;
+
+  --accent: #0078d4;
+  --accent-hover: #106ebe;
+
+  --graph-node-model: #c0392b;
+  --graph-node-module: #2980b9;
+  --graph-node-dataset: #27ae60;
+  --graph-node-concept: #8e44ad;
+  --graph-node-experiment: #d35400;
+  --graph-node-paper: #16a085;
+  --graph-edge: #cccccc;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input {
+  font-family: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

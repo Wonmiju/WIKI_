@@ -1,0 +1,57 @@
+.panel {
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.toc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tocItem {
+  padding: 3px 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.tocItem:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tocH2 {
+  padding-left: 8px;
+}
+
+.tocH3 {
+  padding-left: 20px;
+  font-size: 11px;
+}

@@ -1,0 +1,27 @@
+.list {
+  padding: 0 8px 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.tag:hover {
+  background: var(--bg-active);
+  color: var(--text-accent);
+}
+
+.tagActive {
+  composes: tag;
+  background: var(--bg-active);
+  color: var(--text-accent);
+}

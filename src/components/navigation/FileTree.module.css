@@ -1,0 +1,65 @@
+.tree {
+  padding: 0 4px;
+}
+
+.node {
+  user-select: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: background var(--transition);
+}
+
+.row:hover {
+  background: var(--bg-hover);
+}
+
+.rowActive {
+  composes: row;
+  background: var(--bg-active);
+  color: var(--text-accent);
+}
+
+.indent {
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.chevronHidden {
+  visibility: hidden;
+}
+
+.icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.children {
+  /* nested items */
+}

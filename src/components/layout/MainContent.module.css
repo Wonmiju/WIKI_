@@ -1,0 +1,103 @@
+.container {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-app);
+  min-width: 0;
+}
+
+.inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.metaBadge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.typeModel { background: color-mix(in srgb, var(--graph-node-model) 20%, transparent); color: var(--graph-node-model); }
+.typeModule { background: color-mix(in srgb, var(--graph-node-module) 20%, transparent); color: var(--graph-node-module); }
+.typeDataset { background: color-mix(in srgb, var(--graph-node-dataset) 20%, transparent); color: var(--graph-node-dataset); }
+.typeConcept { background: color-mix(in srgb, var(--graph-node-concept) 20%, transparent); color: var(--graph-node-concept); }
+.typeExperiment { background: color-mix(in srgb, var(--graph-node-experiment) 20%, transparent); color: var(--graph-node-experiment); }
+.typePaper { background: color-mix(in srgb, var(--graph-node-paper) 20%, transparent); color: var(--graph-node-paper); }
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.outgoing {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.outgoingTitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.outgoingList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.outgoingLink {
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-link);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.outgoingLink:hover {
+  background: var(--bg-hover);
+}

@@ -1,0 +1,24 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item {
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text-link);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.item:hover {
+  background: var(--bg-hover);
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+}

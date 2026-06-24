@@ -1,0 +1,13 @@
+.wrapper {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+}
+
+.graph {
+  width: 100%;
+  height: 100%;
+}
