@@ -6,7 +6,23 @@ import { RightPanel } from './components/layout/RightPanel';
 import { useSettingsStore } from './stores/settingsStore';
 import styles from './styles/App.module.css';
 
+// MariaDB 연결
+import { testDatabaseConnection } from './database/db';
+
 export default function App() {
+  useEffect(() => {
+    async function connectDatabase(): Promise<void> {
+      try {
+        await testDatabaseConnection();
+        console.log('MariaDB 연결 성공');
+      } catch (error) {
+        console.error('MariaDB 연결 실패:', error);
+      }
+    }
+
+    void connectDatabase();
+  }, []);
+
   const {
     theme,
     sidebarWidth,
