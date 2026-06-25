@@ -10,15 +10,22 @@ interface FileTreeProps {
 
 function TreeNode({ node, depth = 0 }: { node: FileTreeNode; depth?: number }) {
   const [expanded, setExpanded] = useState(true);
-  const { currentDocument, openDocument } = useDocumentStore();
+  const selectDocument = useDocumentStore(
+    (state) => state.selectDocument,
+  );
+
+  const selectedDocument = useDocumentStore(
+    (state) => state.selectedDocument,
+  );
+
   const isFolder = node.type === 'folder';
-  const isActive = node.documentId === currentDocument?.id;
+  const isActive = node.documentId === selectedDocument?.id;
 
   const handleClick = () => {
     if (isFolder) {
       setExpanded((e) => !e);
     } else if (node.documentId) {
-      openDocument(node.documentId);
+      selectDocument(node.documentId);
     }
   };
 

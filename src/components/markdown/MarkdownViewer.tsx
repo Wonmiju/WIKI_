@@ -5,7 +5,13 @@ import rehypeKatex from 'rehype-katex';
 
 import { useDocumentStore } from '../../stores/documentStore';
 
-export default function MarkdownViewer() {
+interface MarkdownViewerProps {
+  content: string;
+}
+
+export default function MarkdownViewer({
+  content,
+}: MarkdownViewerProps) {
   const document = useDocumentStore(
     (state) => state.selectedDocument,
   );

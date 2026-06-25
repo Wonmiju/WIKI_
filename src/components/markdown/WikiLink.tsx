@@ -1,26 +1,33 @@
-import { findDocumentByTitle } from '../../data/mockDocuments';
+import type { ReactNode } from 'react';
+
 import { useDocumentStore } from '../../stores/documentStore';
+
 import styles from './WikiLink.module.css';
 
 interface WikiLinkProps {
   title: string;
+  children?: ReactNode;
 }
 
-export function WikiLink({ title }: WikiLinkProps) {
-  const openDocumentByTitle = useDocumentStore((s) => s.openDocumentByTitle);
-  const exists = !!findDocumentByTitle(title);
+export default function WikiLink({
+  title,
+  children,
+}: WikiLinkProps) {
+  const selectDocumentByTitle = useDocumentStore(
+    (state) => state.selectDocumentByTitle,
+  );
+
+  const handleClick = (): void => {
+    void selectDocumentByTitle(title);
+  };
 
   return (
-    <a
-      className={exists ? styles.wikiLink : styles.wikiLinkMissing}
-      onClick={(e) => {
-        e.preventDefault();
-        if (exists) openDocumentByTitle(title);
-      }}
-      href="#"
-      title={exists ? `Open ${title}` : `${title} (not found)`}
+    <button
+      type="button"
+      className={styles.link}
+      onClick={handleClick}
     >
-      {title}
-    </a>
+      {children ?? title}
+    </button>
   );
 }

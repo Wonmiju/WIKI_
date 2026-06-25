@@ -1,6 +1,12 @@
 import { useDocumentStore } from '../../stores/documentStore';
 
-export default function Backlinks() {
+interface BacklinksProps {
+  links: string[];
+}
+
+export default function Backlinks({
+  links,
+}: BacklinksProps) {
   const document = useDocumentStore(
     (state) => state.selectedDocument,
   );

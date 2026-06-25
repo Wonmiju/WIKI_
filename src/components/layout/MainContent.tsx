@@ -1,6 +1,6 @@
 import type { DocumentType } from '../../types/document';
 import { useDocumentStore } from '../../stores/documentStore';
-import { MarkdownViewer } from '../markdown/MarkdownViewer';
+import MarkdownViewer from '../markdown/MarkdownViewer';
 import styles from './MainContent.module.css';
 
 const TYPE_CLASS: Record<DocumentType, string> = {
@@ -13,9 +13,15 @@ const TYPE_CLASS: Record<DocumentType, string> = {
 };
 
 export function MainContent() {
-  const { currentDocument, openDocumentByTitle } = useDocumentStore();
+  const selectedDocument = useDocumentStore(
+    (state) => state.selectedDocument,
+  );
 
-  if (!currentDocument) {
+  const selectDocumentByTitle = useDocumentStore(
+    (state) => state.selectDocumentByTitle,
+  );
+
+  if (!selectedDocument) {
     return (
       <main className={styles.container}>
         <div className={styles.empty}>문서를 선택하세요</div>
@@ -23,7 +29,7 @@ export function MainContent() {
     );
   }
 
-  const { frontmatter, content, outgoingLinks } = currentDocument;
+  const { frontmatter, content, outgoingLinks } = selectedDocument;
 
   return (
     <main className={styles.container}>
@@ -54,7 +60,7 @@ export function MainContent() {
                 <span
                   key={link}
                   className={styles.outgoingLink}
-                  onClick={() => openDocumentByTitle(link)}
+                  onClick={() => selectDocumentByTitle(link)}
                 >
                   {link}
                 </span>

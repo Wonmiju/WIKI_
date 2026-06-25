@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { LocalGraph } from '../graph/LocalGraph';
-import { Backlinks } from '../properties/Backlinks';
+import Backlinks from '../properties/Backlinks';
 import { PropertiesPanel } from '../properties/PropertiesPanel';
 import styles from './RightPanel.module.css';
 
@@ -18,14 +18,16 @@ function extractHeadings(content: string): { level: number; text: string }[] {
 }
 
 export function RightPanel() {
-  const { currentDocument, localGraph } = useDocumentStore();
-
-  const headings = useMemo(
-    () => (currentDocument ? extractHeadings(currentDocument.content) : []),
-    [currentDocument],
+  const selectedDocument = useDocumentStore(
+    (state) => state.selectedDocument,
   );
 
-  if (!currentDocument) {
+  const headings = useMemo(
+    () => (selectedDocument ? extractHeadings(selectedDocument.content) : []),
+    [selectedDocument],
+  );
+
+  if (!selectedDocument) {
     return (
       <aside className={styles.panel}>
         <div className={styles.section}>
@@ -43,22 +45,19 @@ export function RightPanel() {
       <div className={styles.scrollArea}>
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Local Graph</div>
-          <LocalGraph
-            data={localGraph}
-            currentNodeId={currentDocument.id}
-          />
+          <LocalGraph />
         </div>
 
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Links to This Page</div>
-          <Backlinks links={currentDocument.backlinks} />
+          <Backlinks links={selectedDocument.backlinks} />
         </div>
 
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Properties</div>
           <PropertiesPanel
-            frontmatter={currentDocument.frontmatter}
-            path={currentDocument.path}
+            frontmatter={selectedDocument.frontmatter}
+            path={selectedDocument.path}
           />
         </div>
 
@@ -69,9 +68,8 @@ export function RightPanel() {
               {headings.map((h, i) => (
                 <div
                   key={i}
-                  className={`${styles.tocItem} ${
-                    h.level === 2 ? styles.tocH2 : h.level === 3 ? styles.tocH3 : ''
-                  }`}
+                  className={`${styles.tocItem} ${h.level === 2 ? styles.tocH2 : h.level === 3 ? styles.tocH3 : ''
+                    }`}
                 >
                   {h.text}
                 </div>

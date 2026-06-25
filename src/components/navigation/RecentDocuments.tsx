@@ -12,7 +12,9 @@ interface RecentDocumentsProps {
 }
 
 export function RecentDocuments({ items }: RecentDocumentsProps) {
-  const openDocument = useDocumentStore((s) => s.openDocument);
+  const selectDocument = useDocumentStore(
+    (state) => state.selectDocument,
+  );
 
   return (
     <div className={styles.list}>
@@ -20,7 +22,7 @@ export function RecentDocuments({ items }: RecentDocumentsProps) {
         <div
           key={item.id}
           className={styles.item}
-          onClick={() => openDocument(item.id)}
+          onClick={() => void selectDocument(item.id)}
         >
           <span className={styles.icon}>🕐</span>
           <span className={styles.title}>{item.title}</span>
