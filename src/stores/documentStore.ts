@@ -28,6 +28,7 @@ interface DocumentStore {
   localGraph: GraphData;
 
   loading: boolean;
+  initializing: boolean;
   initialized: boolean;
   error: string | null;
 
@@ -61,14 +62,35 @@ export const useDocumentStore = create<DocumentStore>(
     localGraph: EMPTY_GRAPH,
 
     loading: false,
+    initializing: false,
     initialized: false,
     error: null,
 
     initialize: async () => {
+      const {
+        initialized,
+        initializing,
+      } = get();
+
+      if (initialized) {
+        console.log(
+          '[documentStore] 이미 초기화되어 건너뜀',
+        );
+        return;
+      }
+
+      if (initializing) {
+        console.log(
+          '[documentStore] 초기화 진행 중이므로 중복 호출 건너뜀',
+        );
+        return;
+      }
+
       console.log('[documentStore] initialize 시작');
 
       set({
         loading: true,
+        initializing: true,
         error: null,
       });
 
@@ -104,6 +126,7 @@ export const useDocumentStore = create<DocumentStore>(
           fileTree,
           tags,
           recentDocuments,
+          initializing: false,
           initialized: true,
           loading: false,
         });
