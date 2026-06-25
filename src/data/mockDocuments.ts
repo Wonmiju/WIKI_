@@ -77,7 +77,7 @@ RT-DETR은 [[Object Detection]]을 위한 실시간 Transformer 검출기다.
     backlinks: ['RT-DETR', 'EXP-002 RT-DETR SFEM'],
     content: `# SFEM
 
-**Scale-aware Feature Enhancement Module** — 다중 스케일 특징을 강화하는 모듈.
+**Scale-aware Feature Enhancement Module** — 다중 스케일 특징을 강화하는 모듈!!.
 
 [[RT-DETR]]의 encoder에 삽입하여 소형 객체 검출 성능을 개선한다.
 
