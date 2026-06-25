@@ -1,46 +1,178 @@
 import { create } from 'zustand';
-import type { Document } from '../types/document';
-import type { GraphData } from '../types/graph';
+
 import {
-  buildLocalGraph,
+  findAllDocuments,
   findDocumentById,
   findDocumentByTitle,
-  MOCK_DOCUMENTS,
-} from '../data/mockDocuments';
+  findRecentDocuments,
+} from '../repositories/documentRepo';
 
-interface DocumentState {
-  currentDocument: Document | null;
+import { findAllTags } from '../repositories/tagRepo';
+import { buildLocalGraph } from '../repositories/graphRepo';
+import { buildFileTree } from '../services/fileTreeBuilder';
+
+import type {
+  Document,
+  DocumentSummary,
+  FileTreeNode,
+} from '../types/document';
+
+import type { GraphData } from '../types/graph';
+
+interface DocumentStore {
+  documents: DocumentSummary[];
+  selectedDocument: Document | null;
+  fileTree: FileTreeNode[];
+  tags: string[];
+  recentDocuments: DocumentSummary[];
   localGraph: GraphData;
-  searchQuery: string;
-  openDocument: (id: string) => void;
-  openDocumentByTitle: (title: string) => void;
-  setSearchQuery: (query: string) => void;
+
+  loading: boolean;
+  initialized: boolean;
+  error: string | null;
+
+  initialize: () => Promise<void>;
+  refresh: () => Promise<void>;
+  selectDocument: (id: string) => Promise<void>;
+  openWikiLink: (title: string) => Promise<void>;
 }
 
-export const useDocumentStore = create<DocumentState>((set) => ({
-  currentDocument: MOCK_DOCUMENTS['model-rtdetr'],
-  localGraph: buildLocalGraph('model-rtdetr'),
-  searchQuery: '',
+const EMPTY_GRAPH: GraphData = {
+  nodes: [],
+  edges: [],
+};
 
-  openDocument: (id) => {
-    const doc = findDocumentById(id);
-    if (doc) {
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
+export const useDocumentStore = create<DocumentStore>(
+  (set, get) => ({
+    documents: [],
+    selectedDocument: null,
+    fileTree: [],
+    tags: [],
+    recentDocuments: [],
+    localGraph: EMPTY_GRAPH,
+
+    loading: false,
+    initialized: false,
+    error: null,
+
+    initialize: async () => {
       set({
-        currentDocument: doc,
-        localGraph: buildLocalGraph(id),
+        loading: true,
+        error: null,
       });
-    }
-  },
 
-  openDocumentByTitle: (title) => {
-    const doc = findDocumentByTitle(title);
-    if (doc) {
+      try {
+        const [
+          documents,
+          tags,
+          recentDocuments,
+        ] = await Promise.all([
+          findAllDocuments(),
+          findAllTags(),
+          findRecentDocuments(5),
+        ]);
+
+        const fileTree = buildFileTree(documents);
+
+        set({
+          documents,
+          fileTree,
+          tags,
+          recentDocuments,
+          initialized: true,
+          loading: false,
+        });
+
+        const current = get().selectedDocument;
+        const firstDocument = documents[0];
+
+        if (!current && firstDocument) {
+          await get().selectDocument(firstDocument.id);
+        }
+      } catch (error) {
+        console.error(error);
+
+        set({
+          loading: false,
+          initialized: false,
+          error: getErrorMessage(error),
+        });
+      }
+    },
+
+    refresh: async () => {
+      await get().initialize();
+    },
+
+    selectDocument: async (id: string) => {
       set({
-        currentDocument: doc,
-        localGraph: buildLocalGraph(doc.id),
+        loading: true,
+        error: null,
       });
-    }
-  },
 
-  setSearchQuery: (searchQuery) => set({ searchQuery }),
-}));
+      try {
+        const [
+          document,
+          localGraph,
+        ] = await Promise.all([
+          findDocumentById(id),
+          buildLocalGraph(id),
+        ]);
+
+        if (!document) {
+          throw new Error(`문서를 찾을 수 없습니다: ${id}`);
+        }
+
+        set({
+          selectedDocument: document,
+          localGraph,
+          loading: false,
+        });
+      } catch (error) {
+        set({
+          loading: false,
+          error: getErrorMessage(error),
+        });
+      }
+    },
+
+    openWikiLink: async (title: string) => {
+      set({
+        loading: true,
+        error: null,
+      });
+
+      try {
+        const document = await findDocumentByTitle(title);
+
+        if (!document) {
+          throw new Error(
+            `연결된 문서가 없습니다: ${title}`,
+          );
+        }
+
+        const localGraph =
+          await buildLocalGraph(document.id);
+
+        set({
+          selectedDocument: document,
+          localGraph,
+          loading: false,
+        });
+      } catch (error) {
+        set({
+          loading: false,
+          error: getErrorMessage(error),
+        });
+      }
+    },
+  }),
+);

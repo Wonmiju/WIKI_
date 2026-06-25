@@ -1,28 +1,40 @@
 import { useDocumentStore } from '../../stores/documentStore';
-import styles from './Backlinks.module.css';
 
-interface BacklinksProps {
-  links: string[];
-}
+export default function Backlinks() {
+  const document = useDocumentStore(
+    (state) => state.selectedDocument,
+  );
 
-export function Backlinks({ links }: BacklinksProps) {
-  const openDocumentByTitle = useDocumentStore((s) => s.openDocumentByTitle);
+  const openWikiLink = useDocumentStore(
+    (state) => state.openWikiLink,
+  );
 
-  if (links.length === 0) {
-    return <div className={styles.empty}>백링크 없음</div>;
+  if (!document) {
+    return null;
   }
 
   return (
-    <div className={styles.list}>
-      {links.map((link) => (
-        <div
-          key={link}
-          className={styles.item}
-          onClick={() => openDocumentByTitle(link)}
-        >
-          {link}
-        </div>
-      ))}
-    </div>
+    <section>
+      <h3>Backlinks</h3>
+
+      {document.backlinks.length === 0 ? (
+        <p>Backlink 없음</p>
+      ) : (
+        <ul>
+          {document.backlinks.map((title) => (
+            <li key={title}>
+              <button
+                type="button"
+                onClick={() =>
+                  void openWikiLink(title)
+                }
+              >
+                {title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
