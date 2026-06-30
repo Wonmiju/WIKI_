@@ -1,0 +1,466 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    color: #e5e7eb;
+    background: #09090b;
+    font-family:
+        Inter, Pretendard, system-ui, -apple-system,
+        BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 900px;
+    background: #09090b;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    padding: 0 24px;
+    border-bottom: 1px solid #27272a;
+    background: #111113;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.2;
+}
+
+.app-header p {
+    margin: 4px 0 0;
+    color: #71717a;
+    font-size: 12px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a1a1aa;
+    font-size: 13px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px rgb(34 197 94 / 65%);
+}
+
+.app-body {
+    display: grid;
+    grid-template-columns: 260px minmax(360px, 1fr) 300px;
+    min-height: 0;
+    flex: 1;
+}
+
+.sidebar,
+.graph-panel {
+    min-height: 0;
+    overflow-y: auto;
+    background: #111113;
+}
+
+.sidebar {
+    border-right: 1px solid #27272a;
+}
+
+.graph-panel {
+    padding: 18px;
+    border-left: 1px solid #27272a;
+}
+
+.sidebar-section {
+    padding: 18px 14px;
+    border-bottom: 1px solid #27272a;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.section-header span {
+    display: grid;
+    place-items: center;
+    min-width: 24px;
+    height: 22px;
+    padding: 0 7px;
+    border: 1px solid #3f3f46;
+    border-radius: 999px;
+    color: #a1a1aa;
+    font-size: 11px;
+}
+
+.document-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.document-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.document-item:hover {
+    background: #1c1c1f;
+}
+
+.document-item.selected {
+    border-color: #3b82f6;
+    background: rgb(37 99 235 / 13%);
+}
+
+.document-title {
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-type {
+    color: #71717a;
+    font-size: 11px;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-chip {
+    padding: 5px 8px;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    color: #a1a1aa;
+    background: #18181b;
+    font-size: 11px;
+}
+
+.content-panel {
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    background: #0c0c0e;
+}
+
+.document-header {
+    padding: 28px 34px 20px;
+    border-bottom: 1px solid #27272a;
+}
+
+.document-header h2 {
+    margin: 10px 0 6px;
+    font-size: 28px;
+}
+
+.document-header p {
+    margin: 0;
+    color: #71717a;
+    font-size: 12px;
+}
+
+.document-badge {
+    display: inline-flex;
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: #93c5fd;
+    background: rgb(37 99 235 / 18%);
+    font-size: 11px;
+}
+
+.document-preview {
+    max-width: 900px;
+    padding: 34px;
+}
+
+.document-preview pre {
+    overflow: auto;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family:
+        'JetBrains Mono', Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.empty-preview {
+    padding: 32px;
+    border: 1px dashed #3f3f46;
+    border-radius: 10px;
+    color: #a1a1aa;
+    background: #111113;
+}
+
+.empty-preview h3 {
+    margin-top: 0;
+    color: #f4f4f5;
+}
+
+.empty-preview dl {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.empty-preview dl div {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+}
+
+.empty-preview dt {
+    color: #71717a;
+}
+
+.empty-preview dd {
+    margin: 0;
+    word-break: break-all;
+}
+
+.graph-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.graph-summary div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 14px;
+    border: 1px solid #27272a;
+    border-radius: 8px;
+    background: #18181b;
+}
+
+.graph-summary strong {
+    font-size: 22px;
+}
+
+.graph-summary span {
+    color: #71717a;
+    font-size: 11px;
+}
+
+.graph-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    margin-top: 14px;
+    padding: 20px;
+    border: 1px solid #27272a;
+    border-radius: 10px;
+    background:
+        radial-gradient(circle at center,
+            rgb(59 130 246 / 12%),
+            transparent 55%),
+        #0c0c0e;
+    text-align: center;
+}
+
+.graph-center-node {
+    display: grid;
+    place-items: center;
+    width: 110px;
+    min-height: 52px;
+    padding: 10px;
+    border: 1px solid #3b82f6;
+    border-radius: 999px;
+    color: #bfdbfe;
+    background: #172554;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.graph-placeholder p {
+    max-width: 220px;
+    margin: 20px 0 0;
+    color: #71717a;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.recent-section {
+    margin-top: 22px;
+}
+
+.recent-section h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+}
+
+.recent-section button {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    padding: 9px 4px;
+    border: 0;
+    border-bottom: 1px solid #27272a;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.recent-section button:hover span {
+    color: #93c5fd;
+}
+
+.recent-section span {
+    font-size: 12px;
+}
+
+.recent-section small {
+    color: #52525b;
+    font-size: 10px;
+}
+
+.app-state {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: #a1a1aa;
+    background: #09090b;
+}
+
+.app-error {
+    padding: 30px;
+    color: #fca5a5;
+}
+
+/* 전체 기본 글자색 */
+html,
+body,
+#root,
+.app-shell {
+  color: #f4f4f5;
+}
+
+/* 중앙 문서 영역 */
+.content-panel,
+.document-preview,
+.document-preview pre,
+.document-preview p,
+.document-preview li,
+.document-preview h1,
+.document-preview h2,
+.document-preview h3,
+.document-preview h4,
+.document-preview h5,
+.document-preview h6,
+.document-preview strong,
+.document-preview em,
+.document-preview code {
+  color: #f4f4f5;
+}
+
+/* 문서 헤더 */
+.document-header h2 {
+  color: #ffffff;
+}
+
+.document-header p {
+  color: #a1a1aa;
+}
+
+/* 좌측 메뉴 */
+.sidebar,
+.sidebar h2,
+.document-title {
+  color: #f4f4f5;
+}
+
+.document-type {
+  color: #a1a1aa;
+}
+
+/* 우측 그래프 영역 */
+.graph-panel,
+.graph-panel h2,
+.graph-panel h3,
+.graph-panel span,
+.graph-panel strong {
+  color: #f4f4f5;
+}
+
+/* 최근 문서 */
+.recent-section button span {
+  color: #f4f4f5;
+}
+
+.recent-section button small {
+  color: #a1a1aa;
+}
+
+/* Markdown 내부 링크 */
+.document-preview a {
+  color: #60a5fa;
+}
+
+/* Markdown 코드 */
+.document-preview code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #27272a;
+  color: #f8fafc;
+}
+
+/* pre 코드 블록 */
+.document-preview pre {
+  padding: 18px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  background: #111113;
+  color: #f4f4f5;
+}
