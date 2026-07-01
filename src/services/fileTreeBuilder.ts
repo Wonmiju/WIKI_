@@ -9,10 +9,17 @@ export function buildFileTree(
     const root: FileTreeNode[] = [];
 
     for (const document of documents) {
-        const parts = document.path
+        const normalizedPath = document.path
             .replaceAll('\\', '/')
+            .replace(/^\/+|\/+$/g, '');
+
+        const parts = normalizedPath
             .split('/')
             .filter(Boolean);
+
+        if (parts.length === 0) {
+            continue;
+        }
 
         let currentLevel = root;
 
@@ -22,19 +29,29 @@ export function buildFileTree(
             index += 1
         ) {
             const part = parts[index];
-            const isFile = index === parts.length - 1;
+            const isFile =
+                index === parts.length - 1;
 
             const currentPath = parts
                 .slice(0, index + 1)
                 .join('/');
 
             if (isFile) {
-                currentLevel.push({
-                    name: part,
-                    path: currentPath,
-                    type: 'file',
-                    documentId: document.id,
-                });
+                const existingFile =
+                    currentLevel.find(
+                        (node) =>
+                            node.type === 'file' &&
+                            node.path === currentPath,
+                    );
+
+                if (!existingFile) {
+                    currentLevel.push({
+                        name: part,
+                        path: currentPath,
+                        type: 'file',
+                        documentId: document.id,
+                    });
+                }
 
                 continue;
             }
@@ -66,13 +83,24 @@ export function buildFileTree(
     return root;
 }
 
-function sortTree(nodes: FileTreeNode[]): void {
+function sortTree(
+    nodes: FileTreeNode[],
+): void {
     nodes.sort((a, b) => {
         if (a.type !== b.type) {
-            return a.type === 'folder' ? -1 : 1;
+            return a.type === 'folder'
+                ? -1
+                : 1;
         }
 
-        return a.name.localeCompare(b.name);
+        return a.name.localeCompare(
+            b.name,
+            undefined,
+            {
+                numeric: true,
+                sensitivity: 'base',
+            },
+        );
     });
 
     for (const node of nodes) {

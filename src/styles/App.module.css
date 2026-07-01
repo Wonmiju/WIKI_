@@ -1,59 +1,351 @@
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+:global(:root) {
+  --bg-app: #09090b;
+  --bg-shell: #0c0c0e;
+  --bg-header: #111113;
+  --bg-sidebar: #101012;
+  --bg-panel: #0c0c0e;
+  --bg-hover: #18181b;
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --border: #27272a;
+  --border-strong: #3f3f46;
+
+  --accent: #3b82f6;
+  --radius: 10px;
+  --transition: 150ms ease;
+
+  --app-gap: 12px;
+  --header-height: 72px;
 }
 
-.main {
+/* =========================================================
+   전체 앱 프레임
+   ========================================================= */
+
+.app {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  padding: var(--app-gap);
+
   display: flex;
-  flex: 1;
+  flex-direction: column;
+
   overflow: hidden;
+
+  color: var(--text-primary);
+  background: var(--bg-app);
+}
+
+/*
+ * Header 컴포넌트의 최상위 요소를 감싼다.
+ * Header.module.css는 그대로 유지하면서 외곽 모양만 조절한다.
+ */
+.app> :first-child {
+  flex: 0 0 var(--header-height);
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+
+  background: var(--bg-header);
+}
+
+/* =========================================================
+   Sidebar / MainContent / RightPanel 배치
+   ========================================================= */
+
+.main {
+  flex: 1;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  align-items: stretch;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+
+  background: var(--bg-shell);
+}
+
+/*
+ * 모든 직접 자식이 자신의 내용 때문에 부모 폭을 밀어내지 않도록 한다.
+ * flex/grid 레이아웃에서 가장 중요한 설정이다.
+ */
+.main>* {
+  min-width: 0;
   min-height: 0;
 }
 
+/*
+ * Sidebar와 RightPanel 내부 컴포넌트가 자체 width를 가지고 있어도
+ * 창을 밀어내지 않게 제한한다.
+ */
+.main> :first-child {
+  flex: 0 1 clamp(190px, 22vw, 260px);
+  width: clamp(190px, 22vw, 260px);
+  max-width: 280px;
+
+  overflow: hidden;
+}
+
+/*
+ * MainContent는 남은 공간을 모두 사용한다.
+ */
+.main> :not(:first-child):not(:last-child):not(.resizeHandle) {
+  flex: 1 1 auto;
+
+  min-width: 0;
+
+  overflow: hidden;
+}
+
+/*
+ * RightPanel
+ */
+.main> :last-child {
+  flex: 0 1 clamp(250px, 29vw, 380px);
+  width: clamp(250px, 29vw, 380px);
+  max-width: 420px;
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   패널 크기 조절 핸들
+   ========================================================= */
+
 .resizeHandle {
-  width: 4px;
+  width: 5px;
+  flex: 0 0 5px;
+
+  position: relative;
+  z-index: 5;
+
   cursor: col-resize;
+
   background: transparent;
-  flex-shrink: 0;
+
   transition: background var(--transition);
+}
+
+.resizeHandle::after {
+  content: '';
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+
+  width: 1px;
+
+  background: var(--border);
 }
 
 .resizeHandle:hover,
 .resizeHandleActive {
+  background: rgb(59 130 246 / 15%);
+}
+
+.resizeHandle:hover::after,
+.resizeHandleActive::after {
   background: var(--accent);
 }
 
+/* =========================================================
+   접힌 패널
+   ========================================================= */
+
 .collapsedBar {
-  width: 36px;
-  flex-shrink: 0;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  width: 38px;
+  flex: 0 0 38px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 8px;
   gap: 4px;
+
+  padding-top: 9px;
+
+  overflow: hidden;
+
+  border-right: 1px solid var(--border);
+
+  background: var(--bg-sidebar);
 }
 
 .collapsedBarRight {
-  border-right: none;
+  border-right: 0;
   border-left: 1px solid var(--border);
 }
 
 .expandBtn {
   width: 28px;
   height: 28px;
-  border-radius: var(--radius);
+  padding: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border: 0;
+  border-radius: 6px;
+
   color: var(--text-secondary);
+  background: transparent;
+
   font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition),
+    background var(--transition);
 }
 
 .expandBtn:hover {
-  background: var(--bg-hover);
   color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* =========================================================
+   초기화 / 오류 화면
+   ========================================================= */
+
+.runtimeMessage,
+.appState {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 32px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: auto;
+
+  color: var(--text-secondary);
+  background: var(--bg-app);
+}
+
+.runtimeMessage>*,
+.appState>* {
+  max-width: 720px;
+}
+
+.appError {
+  width: 100%;
+  height: 100%;
+  padding: 30px;
+
+  overflow: auto;
+
+  color: #fca5a5;
+  background: var(--bg-app);
+}
+
+/* =========================================================
+   중간 크기 창
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  :global(:root) {
+    --app-gap: 10px;
+  }
+
+  .main> :first-child {
+    flex-basis: clamp(180px, 21vw, 230px);
+    width: clamp(180px, 21vw, 230px);
+  }
+
+  .main> :last-child {
+    flex-basis: clamp(230px, 27vw, 310px);
+    width: clamp(230px, 27vw, 310px);
+  }
+}
+
+/* =========================================================
+   좁은 창
+   RightPanel을 감추고 중앙 문서 공간 확보
+   ========================================================= */
+
+@media (max-width: 880px) {
+  :global(:root) {
+    --app-gap: 8px;
+    --header-height: 66px;
+  }
+
+  .main> :first-child {
+    flex-basis: clamp(175px, 26vw, 220px);
+    width: clamp(175px, 26vw, 220px);
+  }
+
+  /*
+   * 구조가 Sidebar → resize → MainContent → resize → RightPanel이면
+   * 마지막 패널과 마지막 resize handle을 감춘다.
+   */
+  .main> :last-child {
+    display: none;
+  }
+
+  .main>.resizeHandle:last-of-type {
+    display: none;
+  }
+}
+
+/* =========================================================
+   매우 좁은 창
+   Sidebar까지 감추고 문서 내용만 표시
+   ========================================================= */
+
+@media (max-width: 640px) {
+  :global(:root) {
+    --app-gap: 6px;
+    --header-height: 62px;
+  }
+
+  .app {
+    padding: var(--app-gap);
+  }
+
+  .main> :first-child {
+    display: none;
+  }
+
+  .main>.resizeHandle:first-of-type {
+    display: none;
+  }
+
+  .main {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .app> :first-child {
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+/* =========================================================
+   낮은 창 대응
+   ========================================================= */
+
+@media (max-height: 620px) {
+  :global(:root) {
+    --app-gap: 6px;
+    --header-height: 60px;
+  }
 }
