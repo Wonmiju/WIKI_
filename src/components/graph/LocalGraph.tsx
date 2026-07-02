@@ -1,73 +1,93 @@
-import { useEffect, useRef } from 'react';
-import cytoscape from 'cytoscape';
-import type { Core, ElementDefinition } from 'cytoscape';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
-import type { GraphData } from '../../types/graph';
-import type { DocumentType } from '../../types/document';
+import cytoscape, {
+  type Core,
+  type ElementDefinition,
+  type Layouts,
+} from 'cytoscape';
 
 import { useDocumentStore } from '../../stores/documentStore';
 
 import styles from './LocalGraph.module.css';
 
-const NODE_COLORS: Record<DocumentType | 'tag', string> = {
-  model: 'var(--graph-node-model)',
-  module: 'var(--graph-node-module)',
-  dataset: 'var(--graph-node-dataset)',
-  concept: 'var(--graph-node-concept)',
-  experiment: 'var(--graph-node-experiment)',
-  paper: 'var(--graph-node-paper)',
-  tag: 'var(--text-muted)',
-};
-
-/**
- * localGraph가 아직 초기화되지 않았을 때 사용할 빈 그래프
- */
-const EMPTY_GRAPH: GraphData = {
-  nodes: [],
-  edges: [],
-};
-
-/**
- * CSS 변수로 지정된 색상을 Cytoscape에서 사용할 수 있는
- * 실제 RGB 색상 문자열로 변환한다.
- */
-function getNodeColor(type: DocumentType | 'tag'): string {
-  const element = document.createElement('div');
-
-  element.style.color =
-    NODE_COLORS[type] ?? NODE_COLORS.concept;
-
-  document.body.appendChild(element);
-
-  const color = getComputedStyle(element).color;
-
-  document.body.removeChild(element);
-
-  return color;
-}
-
 export function LocalGraph() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cyRef = useRef<Core | null>(null);
+  const containerRef =
+    useRef<HTMLDivElement | null>(null);
 
-  /**
-   * MariaDB 또는 documentStore에서 생성된 동적 그래프 데이터
-   */
-  const graphData = useDocumentStore(
-    (state) => state.localGraph ?? EMPTY_GRAPH,
-  );
+  const cytoscapeRef =
+    useRef<Core | null>(null);
 
-  /**
-   * 그래프 노드를 클릭했을 때 문서를 선택하는 Store 액션
-   */
-  const selectDocument = useDocumentStore(
-    (state) => state.selectDocument,
+  const layoutRef =
+    useRef<Layouts | null>(null);
+
+  const resizeFrameRef =
+    useRef<number | null>(null);
+
+  const localGraph = useDocumentStore(
+    (state) => state.localGraph,
   );
 
   const selectedDocumentId = useDocumentStore(
     (state) => state.selectedDocument?.id,
   );
 
+  const selectDocument = useDocumentStore(
+    (state) => state.selectDocument,
+  );
+
+  const elements = useMemo<ElementDefinition[]>(
+    () => {
+      const nodeElements: ElementDefinition[] =
+        localGraph.nodes.map((node) => ({
+          data: {
+            id: node.id,
+            label: node.label,
+            type: node.type,
+            isCenter:
+              node.id === selectedDocumentId
+                ? 'true'
+                : 'false',
+          },
+        }));
+
+      const edgeElements: ElementDefinition[] =
+        localGraph.edges.map(
+          (edge, index) => ({
+            data: {
+              id: [
+                edge.source,
+                edge.target,
+                edge.type,
+                index,
+              ].join('::'),
+
+              source: edge.source,
+              target: edge.target,
+              type: edge.type,
+            },
+          }),
+        );
+
+      return [
+        ...nodeElements,
+        ...edgeElements,
+      ];
+    },
+    [
+      localGraph.nodes,
+      localGraph.edges,
+      selectedDocumentId,
+    ],
+  );
+
+  /*
+   * Cytoscape 인스턴스는 컴포넌트 생명주기 동안
+   * 한 번만 생성한다.
+   */
   useEffect(() => {
     const container = containerRef.current;
 
@@ -75,169 +95,329 @@ export function LocalGraph() {
       return;
     }
 
-    /**
-     * Store의 GraphData를 Cytoscape elements 형식으로 변환
-     */
-    const elements: ElementDefinition[] = [
-      ...graphData.nodes.map((node) => ({
-        group: 'nodes' as const,
-
-        data: {
-          id: node.id,
-          label: node.label,
-          type: node.type,
-          color: getNodeColor(node.type),
-        },
-      })),
-
-      ...graphData.edges.map((edge, index) => ({
-        group: 'edges' as const,
-
-        data: {
-          id: `${edge.source}-${edge.target}-${index}`,
-          source: edge.source,
-          target: edge.target,
-          type: edge.type,
-        },
-      })),
-    ];
-
-    /**
-     * 기존 Cytoscape 인스턴스 정리
-     *
-     * localGraph가 변경될 때 새로운 그래프를 생성하기 위함
-     */
-    if (cyRef.current) {
-      cyRef.current.destroy();
-      cyRef.current = null;
-    }
-
     const cy = cytoscape({
       container,
-      elements,
+
+      elements: [],
+
+      minZoom: 0.35,
+      maxZoom: 2.5,
+
+      wheelSensitivity: 0.2,
 
       style: [
         {
           selector: 'node',
-
-          style: {
-            label: 'data(label)',
-            'background-color': 'data(color)',
-
-            color: '#ccc',
-            'font-size': '10px',
-            'font-weight': 'normal',
-
-            'text-valign': 'bottom',
-            'text-margin-y': 4,
-
-            width: 24,
-            height: 24,
-
-            'border-width': 2,
-            'border-color': 'transparent',
-          },
-        },
-
-        {
-          selector: 'node.highlight',
-
           style: {
             width: 32,
             height: 32,
 
-            'border-color': '#4fc1ff',
-            'border-width': 3,
+            label: 'data(label)',
 
-            'font-weight': 'bold',
-            'font-size': '11px',
+            color: '#d4d4d8',
+            'font-size': 10,
+
+            'text-valign': 'bottom',
+            'text-halign': 'center',
+            'text-margin-y': 8,
+
+            'background-color': '#52525b',
+
+            'border-width': 2,
+            'border-color': '#71717a',
+
+            'overlay-opacity': 0,
+          },
+        },
+
+        {
+          selector: 'node[isCenter = "true"]',
+          style: {
+            width: 44,
+            height: 44,
+
+            'background-color': '#2563eb',
+
+            'border-width': 4,
+            'border-color': '#60a5fa',
+
+            color: '#f4f4f5',
+            'font-weight': 700,
+          },
+        },
+
+        {
+          selector: 'node[type = "tag"]',
+          style: {
+            width: 24,
+            height: 24,
+
+            'background-color': '#7c3aed',
+
+            'border-width': 2,
+            'border-color': '#a78bfa',
           },
         },
 
         {
           selector: 'edge',
-
           style: {
-            width: 1.5,
-
-            'line-color': '#555',
-            'target-arrow-color': '#555',
-            'target-arrow-shape': 'triangle',
+            width: 1.6,
 
             'curve-style': 'bezier',
 
-            opacity: 0.7,
+            'line-color': '#52525b',
+
+            'target-arrow-color': '#71717a',
+            'target-arrow-shape': 'triangle',
+
+            opacity: 0.85,
+
+            'arrow-scale': 0.8,
+          },
+        },
+
+        {
+          selector: 'edge[type = "tag"]',
+          style: {
+            'line-color': '#6d28d9',
+            'target-arrow-color': '#8b5cf6',
+            'line-style': 'dashed',
+          },
+        },
+
+        {
+          selector: 'node:selected',
+          style: {
+            'border-width': 4,
+            'border-color': '#f59e0b',
           },
         },
       ],
-
-      layout: {
-        name: 'cose',
-        animate: true,
-        animationDuration: 300,
-
-        nodeRepulsion: 8000,
-        idealEdgeLength: 60,
-
-        padding: 20,
-      },
-
-      minZoom: 0.3,
-      maxZoom: 3,
-      wheelSensitivity: 0.3,
     });
 
-    /**
-     * 현재 선택된 문서 노드 강조
-     */
-    if (selectedDocumentId) {
-      const selectedNode = cy.getElementById(selectedDocumentId);
+    cytoscapeRef.current = cy;
 
-      if (!selectedNode.empty()) {
-        selectedNode.addClass('highlight');
-      }
-    }
+    const handleNodeTap = (
+      event: cytoscape.EventObject,
+    ) => {
+      const node = event.target;
 
-    /**
-     * 노드 클릭 시 documentStore 상태 변경
-     */
-    cy.on('tap', 'node', (event) => {
-      const documentId = event.target.id();
+      const nodeId = node.id();
+      const nodeType = String(
+        node.data('type') ?? '',
+      );
 
-      if (documentId === selectedDocumentId) {
+      if (
+        nodeType === 'tag' ||
+        nodeId === selectedDocumentId
+      ) {
         return;
       }
 
-      void selectDocument(documentId);
-    });
+      void selectDocument(nodeId);
+    };
 
-    cyRef.current = cy;
+    cy.on(
+      'tap',
+      'node',
+      handleNodeTap,
+    );
+
+    const resizeObserver =
+      new ResizeObserver(() => {
+        if (resizeFrameRef.current !== null) {
+          window.cancelAnimationFrame(
+            resizeFrameRef.current,
+          );
+        }
+
+        resizeFrameRef.current =
+          window.requestAnimationFrame(() => {
+            const currentCy =
+              cytoscapeRef.current;
+
+            if (
+              !currentCy ||
+              currentCy.destroyed()
+            ) {
+              return;
+            }
+
+            const rect =
+              container.getBoundingClientRect();
+
+            if (
+              rect.width <= 0 ||
+              rect.height <= 0
+            ) {
+              return;
+            }
+
+            currentCy.resize();
+
+            if (
+              currentCy.elements().length > 0
+            ) {
+              currentCy.fit(
+                currentCy.elements(),
+                28,
+              );
+            }
+          });
+      });
+
+    resizeObserver.observe(container);
 
     return () => {
-      cy.destroy();
+      resizeObserver.disconnect();
 
-      if (cyRef.current === cy) {
-        cyRef.current = null;
+      if (resizeFrameRef.current !== null) {
+        window.cancelAnimationFrame(
+          resizeFrameRef.current,
+        );
+
+        resizeFrameRef.current = null;
       }
+
+      cy.off(
+        'tap',
+        'node',
+        handleNodeTap,
+      );
+
+      /*
+       * 실행 중인 layout과 element animation을 먼저 중지한다.
+       */
+      layoutRef.current?.stop();
+      layoutRef.current = null;
+
+      cy.elements().stop(
+        true,
+        false,
+      );
+
+      if (!cy.destroyed()) {
+        cy.destroy();
+      }
+
+      cytoscapeRef.current = null;
     };
   }, [
-    graphData,
-    selectedDocumentId,
     selectDocument,
+    selectedDocumentId,
   ]);
 
+  /*
+   * 그래프 데이터가 변경될 때 Cytoscape 인스턴스를
+   * 파괴하지 않고 elements만 갱신한다.
+   */
+  useEffect(() => {
+    const cy = cytoscapeRef.current;
+
+    if (!cy || cy.destroyed()) {
+      return;
+    }
+
+    layoutRef.current?.stop();
+    layoutRef.current = null;
+
+    cy.elements().stop(
+      true,
+      false,
+    );
+
+    cy.batch(() => {
+      cy.elements().remove();
+
+      if (elements.length > 0) {
+        cy.add(elements);
+      }
+    });
+
+    if (elements.length === 0) {
+      return;
+    }
+
+    const layout = cy.layout({
+      name: 'cose',
+
+      animate: false,
+      fit: true,
+      padding: 32,
+
+      nodeRepulsion: 9000,
+      idealEdgeLength: 100,
+      edgeElasticity: 120,
+
+      gravity: 0.25,
+
+      randomize: true,
+    });
+
+    layoutRef.current = layout;
+
+    layout.one('layoutstop', () => {
+      const currentCy =
+        cytoscapeRef.current;
+
+      if (
+        !currentCy ||
+        currentCy.destroyed()
+      ) {
+        return;
+      }
+
+      currentCy.resize();
+      currentCy.fit(
+        currentCy.elements(),
+        32,
+      );
+    });
+
+    layout.run();
+
+    return () => {
+      layout.stop();
+
+      if (layoutRef.current === layout) {
+        layoutRef.current = null;
+      }
+    };
+  }, [elements]);
+
   return (
-    <div className={styles.wrapper}>
-      {graphData.nodes.length === 0 ? (
-        <div className={styles.empty}>
-          표시할 그래프 데이터가 없습니다.
+    <section className={styles.wrapper}>
+      <header className={styles.header}>
+        <div>
+          <h2>로컬 그래프</h2>
+
+          <p>
+            {localGraph.nodes.length} Nodes ·{' '}
+            {localGraph.edges.length} Edges
+          </p>
         </div>
-      ) : (
+      </header>
+
+      <div className={styles.graphArea}>
+        {localGraph.nodes.length === 0 && (
+          <div className={styles.empty}>
+            <strong>
+              연결된 그래프가 없습니다.
+            </strong>
+
+            <span>
+              document_links와 document_tags 관계를
+              확인하세요.
+            </span>
+          </div>
+        )}
+
         <div
           ref={containerRef}
           className={styles.graph}
         />
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
